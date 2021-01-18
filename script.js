@@ -1,6 +1,9 @@
-function prepareCanvas(ctx, canvasWidth, canvasHeight) {
+const CANVAS_WIDTH = window.innerWidth * 0.22
+const CANVAS_HEIGHT = CANVAS_WIDTH
+
+function prepareCanvas(ctx) {
   ctx.fillStyle = `rgb(255,255,255)`
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight)
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 }
 
 function drawStroke(ctx, stroke) {
@@ -12,20 +15,26 @@ function drawStroke(ctx, stroke) {
   ctx.stroke()
 }
 
-function drawStrokes(ctx, strokes) {
-  strokes.forEach((stroke) => {
-    drawStroke(ctx, stroke)
-  })
+function drawSquare(ctx, square) {
+  ctx.fillStyle = `rgb(${square.r},${square.g},${square.b})`
+  ctx.fillRect(square.x1, square.y1, square.x2, square.y2)
+}
+
+function drawCircle(ctx, circle) {
+  ctx.beginPath()
+  ctx.fillStyle = `rgb(${circle.r},${circle.g},${circle.b})`
+  ctx.arc(circle.x, circle.y, circle.radius, circle.radius, 0, 2 * Math.PI)
+  ctx.fill()
 }
 
 class Stroke {
-  constructor(canvasWidth, canvasHeight) {
+  constructor() {
     this.lineWidth = Math.floor(Math.random() * 40) + 1
 
-    this.x1 = Math.floor(Math.random() * canvasWidth)
-    this.y1 = Math.floor(Math.random() * canvasHeight)
-    this.x2 = Math.floor(Math.random() * canvasWidth)
-    this.y2 = Math.floor(Math.random() * canvasHeight)
+    this.x1 = Math.floor(Math.random() * CANVAS_WIDTH)
+    this.y1 = Math.floor(Math.random() * CANVAS_HEIGHT)
+    this.x2 = Math.floor(Math.random() * CANVAS_WIDTH)
+    this.y2 = Math.floor(Math.random() * CANVAS_HEIGHT)
 
     this.r = Math.floor(Math.random() * 255)
     this.g = Math.floor(Math.random() * 255)
@@ -33,20 +42,70 @@ class Stroke {
   }
 }
 
-function generateStrokes(n, canvasWidth, canvasHeight) {
-  const strokes = []
-  for (let i = 0; i < n; i++) {
-    const stroke = new Stroke(canvasWidth, canvasHeight)
-    strokes.push(stroke)
+class Square {
+  constructor() {
+    this.size = Math.floor(Math.random() * 20) + 1
+
+    this.x1 = Math.floor(Math.random() * CANVAS_WIDTH)
+    this.y1 = Math.floor(Math.random() * CANVAS_HEIGHT)
+    this.x2 = this.x1 + this.size
+    this.y2 = this.y1 + this.size
+
+    this.r = Math.floor(Math.random() * 255)
+    this.g = Math.floor(Math.random() * 255)
+    this.b = Math.floor(Math.random() * 255)
   }
-  return strokes
 }
 
-function generateCanvas(ctx, canvasWidth, canvasHeight) {
-  prepareCanvas(ctx, canvasWidth, canvasHeight)
-  const n = Math.floor(Math.random() * 21) + 5
-  strokes = generateStrokes(n, canvasWidth, canvasHeight)
-  drawStrokes(ctx, strokes)
+class Circle {
+  constructor() {
+    this.radius = Math.floor(Math.random() * 100) + 1
+
+    this.x = Math.floor(Math.random() * CANVAS_WIDTH)
+    this.y = Math.floor(Math.random() * CANVAS_HEIGHT)
+
+    this.r = Math.floor(Math.random() * 255)
+    this.g = Math.floor(Math.random() * 255)
+    this.b = Math.floor(Math.random() * 255)
+  }
+}
+
+class Paining {
+  constructor(circles, strokes, squares) {
+    this.circles = circles
+    this.strokes = strokes
+    this.squares = squares
+  }
+}
+
+function generatePainting() {
+  circles = []
+  strokes = []
+  squares = []
+  const n = Math.floor(Math.random() * 11) + 5
+  for (let i = 0; i < n; i++) {
+    const roll = Math.random()
+    if (roll < 0.1) {
+      squares.push(new Square())
+    } else if (roll < 0.2) {
+      circles.push(new Circle())
+    } else {
+      strokes.push(new Stroke())
+    }
+  }
+  return new Paining(circles, strokes, squares)
+}
+
+function drawPainting(ctx, painting) {
+  prepareCanvas(ctx)
+  painting.circles.forEach((circle) => drawCircle(ctx, circle))
+  painting.squares.forEach((square) => drawSquare(ctx, square))
+  painting.strokes.forEach((stroke) => drawStroke(ctx, stroke))
+}
+
+function randomPainting(ctx) {
+  const painting = generatePainting()
+  drawPainting(ctx, painting)
 }
 
 window.onload = function () {
@@ -62,18 +121,18 @@ window.onload = function () {
   const canvasHeight = canvasWidth
 
   canvas1.onclick = function () {
-    generateCanvas(ctx2, canvasWidth, canvasHeight)
-    generateCanvas(ctx3, canvasWidth, canvasHeight)
+    randomPainting(ctx2)
+    randomPainting(ctx3)
   }
 
   canvas2.onclick = function () {
-    generateCanvas(ctx1, canvasWidth, canvasHeight)
-    generateCanvas(ctx3, canvasWidth, canvasHeight)
+    randomPainting(ctx1)
+    randomPainting(ctx3)
   }
 
   canvas3.onclick = function () {
-    generateCanvas(ctx1, canvasWidth, canvasHeight)
-    generateCanvas(ctx2, canvasWidth, canvasHeight)
+    randomPainting(ctx1)
+    randomPainting(ctx2)
   }
 
   const canvases = [canvas1, canvas2, canvas3]
@@ -83,6 +142,6 @@ window.onload = function () {
     canvas.height = canvasHeight
 
     ctx = canvas.getContext("2d")
-    generateCanvas(ctx, canvasWidth, canvasHeight)
+    randomPainting(ctx)
   })
 }
