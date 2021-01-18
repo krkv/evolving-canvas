@@ -20,7 +20,7 @@ function drawStrokes(ctx, strokes) {
 
 class Stroke {
   constructor(canvasWidth, canvasHeight) {
-    this.lineWidth = Math.floor(Math.random() * 25) + 5
+    this.lineWidth = Math.floor(Math.random() * 40) + 1
 
     this.x1 = Math.floor(Math.random() * canvasWidth)
     this.y1 = Math.floor(Math.random() * canvasHeight)
@@ -33,9 +33,9 @@ class Stroke {
   }
 }
 
-function generate(canvasWidth, canvasHeight) {
+function generateStrokes(n, canvasWidth, canvasHeight) {
   const strokes = []
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < n; i++) {
     const stroke = new Stroke(canvasWidth, canvasHeight)
     strokes.push(stroke)
   }
@@ -44,7 +44,8 @@ function generate(canvasWidth, canvasHeight) {
 
 function generateCanvas(ctx, canvasWidth, canvasHeight) {
   prepareCanvas(ctx, canvasWidth, canvasHeight)
-  strokes = generate(canvasWidth, canvasHeight)
+  const n = Math.floor(Math.random() * 21) + 5
+  strokes = generateStrokes(n, canvasWidth, canvasHeight)
   drawStrokes(ctx, strokes)
 }
 
@@ -82,8 +83,6 @@ window.onload = function () {
     canvas.height = canvasHeight
 
     ctx = canvas.getContext("2d")
-    prepareCanvas(ctx, canvasWidth, canvasHeight)
-    strokes = generate(canvasWidth, canvasHeight)
-    drawStrokes(ctx, strokes)
+    generateCanvas(ctx, canvasWidth, canvasHeight)
   })
 }

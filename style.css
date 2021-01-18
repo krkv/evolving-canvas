@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 .main {
@@ -11,23 +12,24 @@ body {
   height: 100vh;
 }
 
-#canvas1,
-#canvas2,
-#canvas3 {
+.frame1,
+.frame2,
+.frame3 {
+  background-color: #ffffff;
   box-sizing: border-box;
   border: solid;
   border-width: 20px;
   padding: 10px;
 }
 
-#canvas1 {
+.frame1 {
   border-color: lightgrey;
 }
 
-#canvas2 {
+.frame2 {
   border-color: lightsteelblue;
 }
 
-#canvas3 {
+.frame3 {
   border-color: lightskyblue;
 }
