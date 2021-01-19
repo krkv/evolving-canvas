@@ -1,4 +1,4 @@
-const CANVAS_WIDTH = window.innerWidth * 0.22
+const CANVAS_WIDTH = window.innerWidth * 0.25
 const CANVAS_HEIGHT = CANVAS_WIDTH
 
 function prepareCanvas(ctx) {
@@ -6,30 +6,9 @@ function prepareCanvas(ctx) {
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 }
 
-function drawStroke(ctx, stroke) {
-  ctx.beginPath()
-  ctx.strokeStyle = `rgb(${stroke.r},${stroke.g},${stroke.b})`
-  ctx.lineWidth = stroke.lineWidth
-  ctx.moveTo(stroke.x1, stroke.y1)
-  ctx.lineTo(stroke.x2, stroke.y2)
-  ctx.stroke()
-}
-
-function drawSquare(ctx, square) {
-  ctx.fillStyle = `rgb(${square.r},${square.g},${square.b})`
-  ctx.fillRect(square.x1, square.y1, square.x2, square.y2)
-}
-
-function drawCircle(ctx, circle) {
-  ctx.beginPath()
-  ctx.fillStyle = `rgb(${circle.r},${circle.g},${circle.b})`
-  ctx.arc(circle.x, circle.y, circle.radius, circle.radius, 0, 2 * Math.PI)
-  ctx.fill()
-}
-
 class Stroke {
   constructor() {
-    this.lineWidth = Math.floor(Math.random() * 40) + 1
+    this.lineWidth = Math.floor(Math.random() * 35) + 3
 
     this.x1 = Math.floor(Math.random() * CANVAS_WIDTH)
     this.y1 = Math.floor(Math.random() * CANVAS_HEIGHT)
@@ -39,6 +18,15 @@ class Stroke {
     this.r = Math.floor(Math.random() * 255)
     this.g = Math.floor(Math.random() * 255)
     this.b = Math.floor(Math.random() * 255)
+  }
+
+  draw(ctx) {
+    ctx.beginPath()
+    ctx.strokeStyle = `rgb(${this.r},${this.g},${this.b})`
+    ctx.lineWidth = this.lineWidth
+    ctx.moveTo(this.x1, this.y1)
+    ctx.lineTo(this.x2, this.y2)
+    ctx.stroke()
   }
 }
 
@@ -55,6 +43,11 @@ class Square {
     this.g = Math.floor(Math.random() * 255)
     this.b = Math.floor(Math.random() * 255)
   }
+
+  draw(ctx) {
+    ctx.fillStyle = `rgb(${this.r},${this.g},${this.b})`
+    ctx.fillRect(this.x1, this.y1, this.x2, this.y2)
+  }
 }
 
 class Circle {
@@ -68,44 +61,45 @@ class Circle {
     this.g = Math.floor(Math.random() * 255)
     this.b = Math.floor(Math.random() * 255)
   }
+
+  draw(ctx) {
+    ctx.beginPath()
+    ctx.fillStyle = `rgb(${this.r},${this.g},${this.b})`
+    ctx.arc(this.x, this.y, this.radius, this.radius, 0, 2 * Math.PI)
+    ctx.fill()
+  }
 }
 
 class Paining {
-  constructor(circles, strokes, squares) {
-    this.circles = circles
-    this.strokes = strokes
-    this.squares = squares
+  constructor(shapes) {
+    this.shapes = shapes
+  }
+
+  draw(ctx) {
+    prepareCanvas(ctx)
+    this.shapes.forEach((shape) => shape.draw(ctx))
   }
 }
 
 function generatePainting() {
-  circles = []
-  strokes = []
-  squares = []
+  shapes = []
   const n = Math.floor(Math.random() * 11) + 5
   for (let i = 0; i < n; i++) {
     const roll = Math.random()
     if (roll < 0.1) {
-      squares.push(new Square())
+      shapes.push(new Square())
     } else if (roll < 0.2) {
-      circles.push(new Circle())
+      shapes.push(new Circle())
     } else {
-      strokes.push(new Stroke())
+      shapes.push(new Stroke())
     }
   }
-  return new Paining(circles, strokes, squares)
-}
-
-function drawPainting(ctx, painting) {
-  prepareCanvas(ctx)
-  painting.circles.forEach((circle) => drawCircle(ctx, circle))
-  painting.squares.forEach((square) => drawSquare(ctx, square))
-  painting.strokes.forEach((stroke) => drawStroke(ctx, stroke))
+  return new Paining(shapes)
 }
 
 function randomPainting(ctx) {
   const painting = generatePainting()
-  drawPainting(ctx, painting)
+  painting.draw(ctx)
 }
 
 window.onload = function () {
@@ -116,9 +110,6 @@ window.onload = function () {
   const ctx1 = canvas1.getContext("2d")
   const ctx2 = canvas2.getContext("2d")
   const ctx3 = canvas3.getContext("2d")
-
-  const canvasWidth = window.innerWidth * 0.22
-  const canvasHeight = canvasWidth
 
   canvas1.onclick = function () {
     randomPainting(ctx2)
@@ -138,8 +129,8 @@ window.onload = function () {
   const canvases = [canvas1, canvas2, canvas3]
 
   canvases.forEach((canvas) => {
-    canvas.width = canvasWidth
-    canvas.height = canvasHeight
+    canvas.width = CANVAS_WIDTH
+    canvas.height = CANVAS_HEIGHT
 
     ctx = canvas.getContext("2d")
     randomPainting(ctx)
