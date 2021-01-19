@@ -48,6 +48,10 @@ class Square {
     ctx.fillStyle = `rgb(${this.r},${this.g},${this.b})`
     ctx.fillRect(this.x1, this.y1, this.x2, this.y2)
   }
+
+  changeSize() {
+    this.size = this.size + Math.floor(Math.random() * 11) - 5
+  }
 }
 
 class Circle {
@@ -79,6 +83,10 @@ class Paining {
     prepareCanvas(ctx)
     this.shapes.forEach((shape) => shape.draw(ctx))
   }
+
+  mutate() {
+    shuffleArray(this.shapes)
+  }
 }
 
 function generatePainting() {
@@ -102,7 +110,16 @@ function randomPainting(ctx) {
   painting.draw(ctx)
 }
 
+function randomize(canvases) {
+  canvases.forEach((canvas) => {
+    ctx = canvas.getContext("2d")
+    randomPainting(ctx)
+  })
+}
+
 window.onload = function () {
+  const main = document.getElementById("main")
+
   const canvas1 = document.getElementById("canvas1")
   const canvas2 = document.getElementById("canvas2")
   const canvas3 = document.getElementById("canvas3")
@@ -111,19 +128,35 @@ window.onload = function () {
   const ctx2 = canvas2.getContext("2d")
   const ctx3 = canvas3.getContext("2d")
 
+  let painting1 = generatePainting()
+  let painting2 = generatePainting()
+  let painting3 = generatePainting()
+
   canvas1.onclick = function () {
-    randomPainting(ctx2)
-    randomPainting(ctx3)
+    painting2.shapes = painting1.shapes
+    painting3.shapes = painting1.shapes
+    painting2.mutate()
+    painting3.mutate()
+    painting2.draw(ctx2)
+    painting3.draw(ctx3)
   }
 
   canvas2.onclick = function () {
-    randomPainting(ctx1)
-    randomPainting(ctx3)
+    painting1.shapes = painting2.shapes
+    painting3.shapes = painting2.shapes
+    painting1.mutate()
+    painting3.mutate()
+    painting1.draw(ctx1)
+    painting3.draw(ctx3)
   }
 
   canvas3.onclick = function () {
-    randomPainting(ctx1)
-    randomPainting(ctx2)
+    painting1.shapes = painting3.shapes
+    painting2.shapes = painting3.shapes
+    painting1.mutate()
+    painting2.mutate()
+    painting1.draw(ctx1)
+    painting2.draw(ctx2)
   }
 
   const canvases = [canvas1, canvas2, canvas3]
@@ -131,8 +164,20 @@ window.onload = function () {
   canvases.forEach((canvas) => {
     canvas.width = CANVAS_WIDTH
     canvas.height = CANVAS_HEIGHT
-
-    ctx = canvas.getContext("2d")
-    randomPainting(ctx)
   })
+
+  painting1.draw(ctx1)
+  painting2.draw(ctx2)
+  painting3.draw(ctx3)
+}
+
+function shuffleArray(array) {
+  let curId = array.length
+  while (0 !== curId) {
+    let randId = Math.floor(Math.random() * curId)
+    curId -= 1
+    let tmp = array[curId]
+    array[curId] = array[randId]
+    array[randId] = tmp
+  }
 }
