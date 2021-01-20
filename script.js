@@ -28,6 +28,19 @@ class Stroke {
     ctx.lineTo(this.x2, this.y2)
     ctx.stroke()
   }
+
+  changePosition() {
+    this.x1 = Math.floor(Math.random() * CANVAS_WIDTH)
+    this.y1 = Math.floor(Math.random() * CANVAS_HEIGHT)
+    this.x2 = Math.floor(Math.random() * CANVAS_WIDTH)
+    this.y2 = Math.floor(Math.random() * CANVAS_HEIGHT)
+  }
+
+  changeColor() {
+    this.r = Math.floor(Math.random() * 255)
+    this.g = Math.floor(Math.random() * 255)
+    this.b = Math.floor(Math.random() * 255)
+  }
 }
 
 class Square {
@@ -49,8 +62,17 @@ class Square {
     ctx.fillRect(this.x1, this.y1, this.x2, this.y2)
   }
 
-  changeSize() {
-    this.size = this.size + Math.floor(Math.random() * 11) - 5
+  changePosition() {
+    this.x1 = Math.floor(Math.random() * CANVAS_WIDTH)
+    this.y1 = Math.floor(Math.random() * CANVAS_HEIGHT)
+    this.x2 = this.x1 + this.size
+    this.y2 = this.y1 + this.size
+  }
+
+  changeColor() {
+    this.r = Math.floor(Math.random() * 255)
+    this.g = Math.floor(Math.random() * 255)
+    this.b = Math.floor(Math.random() * 255)
   }
 }
 
@@ -72,11 +94,22 @@ class Circle {
     ctx.arc(this.x, this.y, this.radius, this.radius, 0, 2 * Math.PI)
     ctx.fill()
   }
+
+  changePosition() {
+    this.x = Math.floor(Math.random() * CANVAS_WIDTH)
+    this.y = Math.floor(Math.random() * CANVAS_HEIGHT)
+  }
+
+  changeColor() {
+    this.r = Math.floor(Math.random() * 255)
+    this.g = Math.floor(Math.random() * 255)
+    this.b = Math.floor(Math.random() * 255)
+  }
 }
 
-class Paining {
+class Painting {
   constructor(shapes) {
-    this.shapes = shapes
+    this.shapes = [...shapes]
   }
 
   draw(ctx) {
@@ -84,8 +117,35 @@ class Paining {
     this.shapes.forEach((shape) => shape.draw(ctx))
   }
 
-  mutate() {
+  mutate(ctx) {
     shuffleArray(this.shapes)
+    prepareCanvas(ctx)
+    for (let i = 0; i < this.shapes.length; i++) {
+      const roll1 = Math.random()
+      const roll2 = Math.random()
+      const roll3 = Math.random()
+      if (roll1 < 0.5) {
+        this.shapes[i].changeColor()
+      }
+      if (roll2 < 0.2) {
+        this.shapes[i].changePosition()
+      }
+      if (roll3 < 0.1) {
+        this.shapes[i] = generateShape()
+      }
+      this.shapes[i].draw(ctx)
+    }
+  }
+}
+
+function generateShape() {
+  const roll = Math.random()
+  if (roll < 0.1) {
+    return new Square()
+  } else if (roll < 0.2) {
+    return new Circle()
+  } else {
+    return new Stroke()
   }
 }
 
@@ -93,16 +153,10 @@ function generatePainting() {
   shapes = []
   const n = Math.floor(Math.random() * 11) + 5
   for (let i = 0; i < n; i++) {
-    const roll = Math.random()
-    if (roll < 0.1) {
-      shapes.push(new Square())
-    } else if (roll < 0.2) {
-      shapes.push(new Circle())
-    } else {
-      shapes.push(new Stroke())
-    }
+    const shape = generateShape()
+    shapes.push(shape)
   }
-  return new Paining(shapes)
+  return new Painting(shapes)
 }
 
 function randomPainting(ctx) {
@@ -118,8 +172,6 @@ function randomize(canvases) {
 }
 
 window.onload = function () {
-  const main = document.getElementById("main")
-
   const canvas1 = document.getElementById("canvas1")
   const canvas2 = document.getElementById("canvas2")
   const canvas3 = document.getElementById("canvas3")
@@ -133,30 +185,24 @@ window.onload = function () {
   let painting3 = generatePainting()
 
   canvas1.onclick = function () {
-    painting2.shapes = painting1.shapes
-    painting3.shapes = painting1.shapes
-    painting2.mutate()
-    painting3.mutate()
-    painting2.draw(ctx2)
-    painting3.draw(ctx3)
+    painting2 = new Painting(painting1.shapes)
+    painting3 = new Painting(painting1.shapes)
+    painting2.mutate(ctx2)
+    painting3.mutate(ctx3)
   }
 
   canvas2.onclick = function () {
-    painting1.shapes = painting2.shapes
-    painting3.shapes = painting2.shapes
-    painting1.mutate()
-    painting3.mutate()
-    painting1.draw(ctx1)
-    painting3.draw(ctx3)
+    painting1 = new Painting(painting2.shapes)
+    painting3 = new Painting(painting2.shapes)
+    painting1.mutate(ctx1)
+    painting3.mutate(ctx3)
   }
 
   canvas3.onclick = function () {
-    painting1.shapes = painting3.shapes
-    painting2.shapes = painting3.shapes
-    painting1.mutate()
-    painting2.mutate()
-    painting1.draw(ctx1)
-    painting2.draw(ctx2)
+    painting1 = new Painting(painting3.shapes)
+    painting2 = new Painting(painting3.shapes)
+    painting1.mutate(ctx1)
+    painting2.mutate(ctx2)
   }
 
   const canvases = [canvas1, canvas2, canvas3]
